@@ -1,0 +1,43 @@
+.technology-list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+  }
+  
+  .technology-item {
+	background: #fff;
+	padding: 15px;
+	border-radius: 5px;
+	display: flex;
+	align-items: center;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .technology-image {
+	width: 50px;
+	height: 50px;
+	margin-right: 15px;
+  }
+  
+  .technology-info {
+	flex: 1;
+  }
+  
+  .technology-actions {
+	display: flex;
+	gap: 10px;
+  }
+  
+  .technology-actions button {
+	background-color: #0056b3;
+	color: #fff;
+	border: none;
+	padding: 5px 10px;
+	cursor: pointer;
+	border-radius: 5px;
+  }
+  
+  .technology-actions button:hover {
+	background-color: #004494;
+  }
+  

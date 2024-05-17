@@ -1,0 +1,24 @@
+.inventory-page {
+	padding: 20px;
+  }
+  
+  .inventory-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20px;
+  }
+  
+  .add-button {
+	background-color: #0056b3;
+	color: #fff;
+	border: none;
+	padding: 10px 20px;
+	cursor: pointer;
+	border-radius: 5px;
+  }
+  
+  .add-button:hover {
+	background-color: #004494;
+  }
+  
