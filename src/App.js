@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import TechnologyInventoryPage from './pages/TechnologyInventory/TechnologyInventoryPage';
 import TestPage from './pages/TestPage';  // Importe a nova página de teste
 import '@mantine/core/styles.css';
+import '@mantine/dates/styles.css';
+import '@mantine/notifications/styles.css';
 
 const App = () => {
   return (

@@ -4,7 +4,7 @@ const PaginationContext = createContext();
 
 const initialState = {
   page: 0,
-  pageSize: 20, //contante??
+  pageSize: 20, //constante??
 };
 
 const reducer = (state, action) => {
