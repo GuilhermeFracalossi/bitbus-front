@@ -7,6 +7,74 @@ import apiInstance from '../../services/api_client';
 import { notifications } from '@mantine/notifications';
 import { defaultArtefato } from './TechnologyInventoryPage';
 
+export const ArtefatoModal = ({ closeModal }) => {
+  const { trigger, getValues, setValue, setError } = useFormContext();
+
+  const { isLoadingCreate, mutateAsync: createArtefatoMutation } = useMutation({
+    mutationKey: ["create-artefato"],
+    mutationFn: (artefato) => apiInstance.post('/artefato', {
+      artefato: {
+        ...artefato,
+        ano: artefato.ano.getFullYear().toString(),
+      }
+    })
+  });
+
+  const { isLoadingUpdate, mutateAsync: updateArtefatoMutation } = useMutation({
+    mutationKey: ["update-artefato"],
+    mutationFn: (artefato) => apiInstance.patch(`/artefato/${artefato.id}`, {
+      artefato: {
+        ...artefato,
+        ano: artefato.ano.getFullYear().toString(),
+      }
+    })
+  });
+  const isLoading = isLoadingCreate || isLoadingUpdate;
+
+  const handleSave = async () => {
+    if (!await trigger("auxiliar.artefato")) {
+      return;
+    }
+
+    let descricaoAlerta = "Artefato atualizado!";
+    try {
+      const formArtefato = getValues("auxiliar.artefato");
+      if ((formArtefato.id ?? 0) > 0) {
+        await updateArtefatoMutation(formArtefato);
+      } else {
+        await createArtefatoMutation(formArtefato);
+        descricaoAlerta = "Artefato criado!";
+      }
+    } catch (error) {
+      if (!error?.response?.data?.error) {
+        console.error(error);
+        return;
+      }
+
+      if (Array.isArray(error.response.data.fields)) {
+        error.response.data.fields.forEach((field) => {
+          setError(`auxiliar.artefato.${field}`, { message: "Campo obrigatório" });
+        });
+      }
+
+      return;
+    }
+
+    setValue("auxiliar.artefato", { ...defaultArtefato });
+    notifications.show({
+      title: descricaoAlerta,
+      color: 'teal',
+    });
+    closeModal();
+  };
+
+  return <div>
+    <ArtefatoFields />
+    <Space h="xs" />
+    <Button onClick={handleSave} loading={isLoading} fullWidth>Salvar</Button>
+  </div>;
+};
+
 const CategoriaField = () => {
   const { control, formState: { errors } } = useFormContext();
   const autocompleteRegister = useController({
@@ -34,8 +102,9 @@ const CategoriaField = () => {
     onChange={autocompleteRegister.field.onChange}
     error={errors?.auxiliar?.artefato?.categoria?.message} />;
 };
-export const ModalContent = ({ closeModal }) => {
-  const { register, control, trigger, getValues, setValue, setError, formState: { errors } } = useFormContext();
+
+const ArtefatoFields = () => {
+  const { register, control, formState: { errors } } = useFormContext();
   const quantidadeRegister = useController({
     name: "auxiliar.artefato.quantidade",
     control: control,
@@ -44,46 +113,6 @@ export const ModalContent = ({ closeModal }) => {
     name: "auxiliar.artefato.ano",
     control: control,
   });
-
-  const { isLoading, mutateAsync } = useMutation({
-    mutationKey: ["create-artefato"],
-    mutationFn: (artefato) => apiInstance.post('/artefato', {
-      artefato: {
-        ...artefato,
-        ano: artefato.ano.getFullYear().toString(),
-      }
-    })
-  });
-
-  const handleSave = async () => {
-    if (!await trigger("auxiliar.artefato")) {
-      return;
-    }
-
-    try {
-      await mutateAsync(getValues("auxiliar.artefato"));
-    } catch (error) {
-      if (!error?.response?.data?.error) {
-        console.error(error);
-        return;
-      }
-
-      if (Array.isArray(error.response.data.fields)) {
-        error.response.data.fields.forEach((field) => {
-          setError(`auxiliar.artefato.${field}`, { message: "Campo obrigatório" });
-        });
-      }
-
-      return;
-    }
-
-    setValue("auxiliar.artefato", { ...defaultArtefato });
-    notifications.show({
-      title: 'Artefato criado!',
-      color: 'teal',
-    });
-    closeModal();
-  };
 
   return <div>
     <TextInput
@@ -144,7 +173,5 @@ export const ModalContent = ({ closeModal }) => {
       error={errors?.auxiliar?.artefato?.localArmazenamento?.message}
       placeholder="Sala 1, prateleira 2, caixa 3"
       {...register("auxiliar.artefato.localArmazenamento")} />
-    <Space h="xs" />
-    <Button type="button" loading={isLoading} fullWidth variant="filled" color="teal" onClick={handleSave}>Salvar</Button>
   </div>;
 };

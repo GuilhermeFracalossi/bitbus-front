@@ -1,12 +1,16 @@
 import React from 'react';
-import { Center, Loader, Table } from '@mantine/core';
+import { Button, Center, Loader, Table, Tooltip } from '@mantine/core';
 import { useQuery } from 'react-query';
 import apiInstance from '../../services/api_client';
 import { usePaginationContext } from '../../utils/context/paginationContext';
+import { IconTrash } from '@tabler/icons-react';
+import { notifications } from '@mantine/notifications';
+import { useFormContext } from 'react-hook-form';
 
-export const ListagemArtefatos = () => {
+export const ListagemArtefatos = ({ openModal }) => {
   const { page, pageSize } = usePaginationContext();
-  const { data, isLoading } = useQuery({
+  const { setValue } = useFormContext();
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["artefatos"],
     queryFn: () => apiInstance.get('/artefato', {
       params: {
@@ -24,6 +28,29 @@ export const ListagemArtefatos = () => {
 
   const registros = data.data.data;
 
+  const handleRemover = async (e, id) => {
+    e.preventDefault();
+    try {
+      await apiInstance.delete(`/artefato/${id}`);
+      refetch();
+    } catch (error) {
+      console.error(error);
+      return;
+    }
+
+    notifications.show({
+      title: 'Artefato removido!',
+      color: 'red',
+    });
+  }
+
+  const handleEditar = (registro) => {
+    const parsedAno = new Date();
+    parsedAno.setFullYear(registro.ano);
+    setValue("auxiliar.artefato", { ...registro, ano: parsedAno, categoria: registro.categoria.descricao });
+    openModal();
+  }
+
   return <div>
     <h2>Artefatos</h2>
     <Table highlightOnHover>
@@ -36,11 +63,12 @@ export const ListagemArtefatos = () => {
           <Table.Th>Categoria</Table.Th>
           <Table.Th>Quantidade</Table.Th>
           <Table.Th>Origem (criar enum)</Table.Th>
+          <Table.Th>Ações</Table.Th>
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
         {registros.map((registro) => {
-          return <Table.Tr key={registro.id}>
+          return <Table.Tr key={registro.id} onClick={() => handleEditar(registro)}  className='cursor-pointer'>
             <Table.Td><img src={registro.fotoMiniatura} alt={registro.nome} width="50" /></Table.Td>
             <Table.Td>{registro.codigo}</Table.Td>
             <Table.Td>{registro.nome}</Table.Td>
@@ -48,6 +76,13 @@ export const ListagemArtefatos = () => {
             <Table.Td>{registro?.categoria?.descricao}</Table.Td>
             <Table.Td>{registro.quantidade}</Table.Td>
             <Table.Td>{registro.origem}</Table.Td>
+            <Table.Td>
+              <Tooltip label="Excluir">
+                <Button onClick={(e) => handleRemover(e, registro.id)}>
+                  <IconTrash size={14} />
+                </Button>
+              </Tooltip>
+            </Table.Td>
           </Table.Tr>;
         })}
       </Table.Tbody>

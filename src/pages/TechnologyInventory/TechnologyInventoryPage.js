@@ -1,16 +1,17 @@
 import React from 'react';
 import '../../styles/TechnologyInventoryPage.css'; // Importe o arquivo de estilos
 import { Button, Modal } from '@mantine/core';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 import { IconPlus } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { QueryClient, QueryClientProvider, useQueryClient } from 'react-query';
 import { PaginationProvider } from '../../utils/context/paginationContext';
 import { ListagemArtefatos } from './ListagemArtefatos';
-import { ModalContent } from './ModalContent';
+import { ArtefatoModal } from './ModalContent';
 const queryClient = new QueryClient();
 
 export const defaultArtefato = {
+  id: 0,
   nome: "",
   categoria: "",
   ano: new Date(),
@@ -49,22 +50,27 @@ const TechnologyInventoryPage = () => {
 const InventoryPageContent = () => {
   const [opened, { open, close }] = useDisclosure(false);
   const queryClient = useQueryClient();
-
+  const { setValue } = useFormContext();
   const handleClose = () => {
     close();
     queryClient.refetchQueries(["artefatos"]);
   }
 
+  const handleOpenModalAddItem = () => {
+    setValue("auxiliar.artefato", { ...defaultArtefato });
+    open();
+  }
+
   return <>
     <header className="inventory-header">
       <h1>Itens de tecnologia</h1>
-      <Button rightSection={<IconPlus size={14} />} onClick={open} >Add item</Button>
+      <Button rightSection={<IconPlus size={14} />} onClick={handleOpenModalAddItem} >Add item</Button>
     </header>
-    <Modal opened={opened} onClose={close} title="Novo artefato">
-      <ModalContent closeModal={handleClose} />
+    <Modal opened={opened} onClose={close} title="Artefato">
+      <ArtefatoModal closeModal={handleClose} />
     </Modal>
     <PaginationProvider>
-      <ListagemArtefatos />
+      <ListagemArtefatos openModal={open} />
     </PaginationProvider>
   </>;
 }
