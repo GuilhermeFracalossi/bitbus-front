@@ -1,16 +1,16 @@
 import React from 'react';
-import { Button, Center, Loader, Table, Tooltip } from '@mantine/core';
+import { Alert, Button, Center, Loader, Table, Tooltip } from '@mantine/core';
 import { useQuery } from 'react-query';
 import apiInstance from '../../services/api_client';
 import { usePaginationContext } from '../../utils/context/paginationContext';
-import { IconTrash } from '@tabler/icons-react';
+import { IconInfoCircle, IconTrash } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useFormContext } from 'react-hook-form';
 
 export const ListagemArtefatos = ({ openModal }) => {
   const { page, pageSize } = usePaginationContext();
   const { setValue } = useFormContext();
-  const { data, isLoading, refetch } = useQuery({
+  const { data: artefatoResponse, isLoading, refetch, isError } = useQuery({
     queryKey: ["artefatos"],
     queryFn: () => apiInstance.get('/artefato', {
       params: {
@@ -26,8 +26,6 @@ export const ListagemArtefatos = ({ openModal }) => {
     </Center>;
   }
 
-  const registros = data.data.data;
-
   const handleRemover = async (e, id) => {
     e.preventDefault();
     try {
@@ -37,13 +35,13 @@ export const ListagemArtefatos = ({ openModal }) => {
       console.error(error);
       return;
     }
-
+    
     notifications.show({
       title: 'Artefato removido!',
       color: 'red',
     });
   }
-
+  
   const handleEditar = (registro) => {
     const parsedAno = new Date();
     parsedAno.setFullYear(registro.ano);
@@ -51,8 +49,19 @@ export const ListagemArtefatos = ({ openModal }) => {
     openModal();
   }
 
+  if (isError) {
+    const icon = <IconInfoCircle />;
+    
+    return (
+      <Alert variant="light" color="yellow" title="Erro ao obter artefatos" icon={icon}>
+        Houve um erro ao obter os artefatos. Por favor, tente novamente.
+      </Alert>
+    );
+  }
+
+  const registros = artefatoResponse.data?.data;
+
   return <div>
-    <h2>Artefatos</h2>
     <Table highlightOnHover>
       <Table.Thead>
         <Table.Tr>
@@ -78,7 +87,7 @@ export const ListagemArtefatos = ({ openModal }) => {
             <Table.Td>{registro.origem}</Table.Td>
             <Table.Td>
               <Tooltip label="Excluir">
-                <Button onClick={(e) => handleRemover(e, registro.id)}>
+                <Button color="red" onClick={(e) => handleRemover(e, registro.id)}>
                   <IconTrash size={14} />
                 </Button>
               </Tooltip>

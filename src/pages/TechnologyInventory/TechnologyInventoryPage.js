@@ -1,6 +1,6 @@
 import React from 'react';
 import '../../styles/TechnologyInventoryPage.css'; // Importe o arquivo de estilos
-import { Button, Modal } from '@mantine/core';
+import { Button, Modal, Title } from '@mantine/core';
 import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 import { IconPlus } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
@@ -32,7 +32,7 @@ const TechnologyInventoryPage = () => {
         artefato: defaultArtefato,
       }
     }
-  })
+  });
 
   console.log(form.watch())
 
@@ -63,7 +63,7 @@ const InventoryPageContent = () => {
 
   return <>
     <header className="inventory-header">
-      <h1>Itens de tecnologia</h1>
+      <Title order={3}>Itens de tecnologia</Title>
       <Button rightSection={<IconPlus size={14} />} onClick={handleOpenModalAddItem} >Add item</Button>
     </header>
     <Modal opened={opened} onClose={close} title="Artefato">

@@ -7,6 +7,7 @@ import '@mantine/dates/styles.css';
 import '@mantine/notifications/styles.css';
 import { AppShell, Group, Image, NavLink } from '@mantine/core';
 import { IconBuildingWarehouse, IconMapPins } from '@tabler/icons-react';
+import { VisitsPage } from './pages/Visits';
 
 const App = () => {
 
@@ -45,6 +46,7 @@ const App = () => {
       <AppShell.Main>
             <Routes>
                 <Route path="/inventory" element={<TechnologyInventoryPage />} />
+                <Route path="/visits" element={<VisitsPage />} />
                 <Route path="/test" element={<TestPage />} />
             </Routes>
       </AppShell.Main>
