@@ -22,6 +22,7 @@ export const defaultArtefato = {
   fotoMiniatura: "",
   link: "",
   localArmazenamento: "",
+  fotoAuxiliar: null,
 };
 
 const TechnologyInventoryPage = () => {

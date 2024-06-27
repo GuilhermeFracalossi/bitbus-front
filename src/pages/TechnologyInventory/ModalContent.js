@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, TextInput, Autocomplete, Skeleton, NumberInput, Textarea, Space } from '@mantine/core';
+import { Button, TextInput, Autocomplete, Skeleton, NumberInput, Textarea, Space, FileInput } from '@mantine/core';
 import { YearPickerInput } from '@mantine/dates';
 import { useController, useFormContext } from 'react-hook-form';
 import { useMutation, useQuery } from 'react-query';
@@ -40,10 +40,17 @@ export const ArtefatoModal = ({ closeModal }) => {
     try {
       const formArtefato = getValues("auxiliar.artefato");
       if ((formArtefato.id ?? 0) > 0) {
-        await updateArtefatoMutation(formArtefato);
+        let artefatoResponse = await updateArtefatoMutation(formArtefato);
       } else {
-        await createArtefatoMutation(formArtefato);
+        let artefatoResponse = await createArtefatoMutation(formArtefato);
         descricaoAlerta = "Artefato criado!";
+      }
+
+      if (formArtefato.fotoAuxiliar) {
+        const formData = new FormData();
+        formData.append("foto", formArtefato.fotoAuxiliar);
+        await apiInstance.post(`/artefato/${formArtefato.id}/foto`, formData);
+      
       }
     } catch (error) {
       if (!error?.response?.data?.error) {
@@ -59,6 +66,8 @@ export const ArtefatoModal = ({ closeModal }) => {
 
       return;
     }
+
+  
 
     setValue("auxiliar.artefato", { ...defaultArtefato });
     notifications.show({
@@ -102,6 +111,26 @@ const CategoriaField = () => {
     onChange={autocompleteRegister.field.onChange}
     error={errors?.auxiliar?.artefato?.categoria?.message} />;
 };
+
+const FotoField = () => {
+  const { formState: { errors }, control, watch } = useFormContext();
+  const fotoRegister = useController({
+    name: "auxiliar.artefato.fotoAuxiliar",
+    control: control,
+  });
+
+  console.log(watch("auxiliar.artefato.fotoAuxiliar"));
+
+  return <FileInput
+    label="Foto do artefato"
+    placeholder="Foto do artefato"
+    error={errors?.auxiliar?.artefato?.fotoMiniatura?.message}
+    value={fotoRegister.value}
+    onChange={fotoRegister.field.onChange} 
+    accept="image/png,image/jpeg"
+  />;
+};
+
 
 const ArtefatoFields = () => {
   const { register, control, formState: { errors } } = useFormContext();
@@ -153,12 +182,7 @@ const ArtefatoFields = () => {
       error={errors?.auxiliar?.artefato?.informacoes?.message}
       {...register("auxiliar.artefato.informacoes", { required: "Campo obrigatório" })} />
     <Space h="xs" />
-    <TextInput
-      label="Foto miniatura"
-      description="URL da foto miniatura do artefato"
-      error={errors?.auxiliar?.artefato?.fotoMiniatura?.message}
-      placeholder="https://example.com/ram.jpg"
-      {...register("auxiliar.artefato.fotoMiniatura")} />
+    <FotoField />
     <Space h="xs" />
     <TextInput
       label="Link"
