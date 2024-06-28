@@ -11,7 +11,7 @@ export const ListagemArtefatos = ({ openModal }) => {
   const { page, pageSize } = usePaginationContext();
   const { setValue } = useFormContext();
   const { data: artefatoResponse, isLoading, refetch, isError } = useQuery({
-    queryKey: ["artefatos"],
+    queryKey: ["artefatos", page],
     queryFn: () => apiInstance.get('/artefato', {
       params: {
         page,
@@ -78,7 +78,7 @@ export const ListagemArtefatos = ({ openModal }) => {
       <Table.Tbody>
         {registros.map((registro) => {
           return <Table.Tr key={registro.id} onClick={() => handleEditar(registro)}  className='cursor-pointer'>
-            <Table.Td><img src={registro.fotoMiniatura} alt={registro.nome} width="50" /></Table.Td>
+            <Table.Td><img src={process.env.REACT_APP_API_URL + registro.fotoMiniatura} alt={registro.nome} width="50" /></Table.Td>
             <Table.Td>{registro.codigo}</Table.Td>
             <Table.Td>{registro.nome}</Table.Td>
             <Table.Td>{registro.ano}</Table.Td>

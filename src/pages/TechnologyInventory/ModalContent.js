@@ -48,8 +48,8 @@ export const ArtefatoModal = ({ closeModal }) => {
 
       if (formArtefato.fotoAuxiliar) {
         const formData = new FormData();
-        formData.append("foto", formArtefato.fotoAuxiliar);
-        await apiInstance.post(`/artefato/${formArtefato.id}/foto`, formData);
+        formData.append("photo", formArtefato.fotoAuxiliar);
+        await apiInstance.put(`/artefato/${formArtefato.id}/foto`, formData);
       
       }
     } catch (error) {

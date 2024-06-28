@@ -8,6 +8,7 @@ import '@mantine/notifications/styles.css';
 import { AppShell, Group, Image, NavLink } from '@mantine/core';
 import { IconBuildingWarehouse, IconMapPins } from '@tabler/icons-react';
 import { VisitsPage } from './pages/Visits';
+import { HomePage } from './pages/Home';
 
 const App = () => {
 
@@ -48,6 +49,7 @@ const App = () => {
                 <Route path="/inventory" element={<TechnologyInventoryPage />} />
                 <Route path="/visits" element={<VisitsPage />} />
                 <Route path="/test" element={<TestPage />} />
+                <Route path="/" element={<HomePage />} />
             </Routes>
       </AppShell.Main>
     </AppShell>

@@ -77,6 +77,10 @@ const EventoCard = ({ id }) => {
             <Skeleton height={400} width={400} radius="xl" />
         </Center>
     }
+
+    if (!visita) {
+        return <Text>Evento não encontrado</Text>;
+    }
     console.log(visita.data);
 
     return (
@@ -91,7 +95,7 @@ const EventoCard = ({ id }) => {
   
         <Group justify="space-between" mt="md" mb="xs">
           <Text fw={500}>{visita.nome}</Text>
-          <Badge color="pink">{visita.data.getDate().padStart(2, '0')}/{visita.data.getMonth().padStart(2, '0')}</Badge>
+          <Badge color="pink">{String(visita.data.getDate()).padStart(2, '0')}/{String(visita.data.getMonth()).padStart(2, '0')}</Badge>
         </Group>
   
         <Text size="sm" c="dimmed">
