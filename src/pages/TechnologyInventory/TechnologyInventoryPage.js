@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider, useQueryClient } from 'react-query';
 import { PaginationProvider } from '../../utils/context/paginationContext';
 import { ListagemArtefatos } from './ListagemArtefatos';
 import { ArtefatoModal } from './ModalContent';
+import { OrigemArtefatoEnum } from '../../enum/OrigemArtefatoEnum';
 const queryClient = new QueryClient();
 
 export const defaultArtefato = {
@@ -17,7 +18,7 @@ export const defaultArtefato = {
   ano: new Date(),
   quantidade: 0,
   informacoes: "",
-  origem: "doacao",
+  origem: OrigemArtefatoEnum.DOACAO,
   codigo: "",
   fotoMiniatura: "",
   link: "",
@@ -34,8 +35,6 @@ const TechnologyInventoryPage = () => {
       }
     }
   });
-
-  console.log(form.watch())
 
   return (
     <FormProvider {...form} >

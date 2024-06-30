@@ -6,6 +6,7 @@ import { usePaginationContext } from '../../utils/context/paginationContext';
 import { IconInfoCircle, IconTrash } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useFormContext } from 'react-hook-form';
+import { OrigemArtefatoEnumLabel } from '../../enum/OrigemArtefatoEnum';
 
 export const ListagemArtefatos = ({ openModal }) => {
   const { page, pageSize } = usePaginationContext();
@@ -71,7 +72,7 @@ export const ListagemArtefatos = ({ openModal }) => {
           <Table.Th>Ano</Table.Th>
           <Table.Th>Categoria</Table.Th>
           <Table.Th>Quantidade</Table.Th>
-          <Table.Th>Origem (criar enum)</Table.Th>
+          <Table.Th>Origem</Table.Th>
           <Table.Th>Ações</Table.Th>
         </Table.Tr>
       </Table.Thead>
@@ -84,7 +85,7 @@ export const ListagemArtefatos = ({ openModal }) => {
             <Table.Td>{registro.ano}</Table.Td>
             <Table.Td>{registro?.categoria?.descricao}</Table.Td>
             <Table.Td>{registro.quantidade}</Table.Td>
-            <Table.Td>{registro.origem}</Table.Td>
+            <Table.Td>{OrigemArtefatoEnumLabel[Number(registro.origem)]}</Table.Td>
             <Table.Td>
               <Tooltip label="Excluir">
                 <Button color="red" onClick={(e) => handleRemover(e, registro.id)}>

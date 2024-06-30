@@ -102,7 +102,6 @@ export const EventoCard = ({ id, open }) => {
     }
 
     const handleEdit = () => {
-        console.log(parsedVisita)
         setValue("evento", { ...parsedVisita });
         open();
     }

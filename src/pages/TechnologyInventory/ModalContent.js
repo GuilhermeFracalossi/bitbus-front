@@ -39,17 +39,19 @@ export const ArtefatoModal = ({ closeModal }) => {
     let descricaoAlerta = "Artefato atualizado!";
     try {
       const formArtefato = getValues("auxiliar.artefato");
+
+      let artefatoResponse = null;
       if ((formArtefato.id ?? 0) > 0) {
-        let artefatoResponse = await updateArtefatoMutation(formArtefato);
+        artefatoResponse = await updateArtefatoMutation(formArtefato);
       } else {
-        let artefatoResponse = await createArtefatoMutation(formArtefato);
+        artefatoResponse = await createArtefatoMutation(formArtefato);
         descricaoAlerta = "Artefato criado!";
       }
 
-      if (formArtefato.fotoAuxiliar) {
+      if (formArtefato.fotoAuxiliar && artefatoResponse?.data?.id) {
         const formData = new FormData();
         formData.append("photo", formArtefato.fotoAuxiliar);
-        await apiInstance.put(`/artefato/${formArtefato.id}/foto`, formData);
+        await apiInstance.put(`/artefato/${artefatoResponse.data.id}/foto`, formData);
       
       }
     } catch (error) {
@@ -113,13 +115,11 @@ const CategoriaField = () => {
 };
 
 const FotoField = () => {
-  const { formState: { errors }, control, watch } = useFormContext();
+  const { formState: { errors }, control } = useFormContext();
   const fotoRegister = useController({
     name: "auxiliar.artefato.fotoAuxiliar",
     control: control,
   });
-
-  console.log(watch("auxiliar.artefato.fotoAuxiliar"));
 
   return <FileInput
     label="Foto do artefato"
