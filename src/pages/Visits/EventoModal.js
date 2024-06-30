@@ -1,12 +1,14 @@
-import { Button, FileInput, Space, TextInput, Textarea } from "@mantine/core";
+import { Button, FileInput, Select, Skeleton, Space, Switch, TextInput, Textarea, rem } from "@mantine/core";
 import { useController, useFormContext } from "react-hook-form";
 import { DatePickerInput } from "@mantine/dates";
 import apiInstance from "../../services/api_client";
-import { useMutation } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { notifications } from "@mantine/notifications";
 import { TipoEventoEnum } from "../../enum/TipoEventoEnum";
 import { TipoPessoaEnum } from "../../enum/TipoPessoaEnum";
 import { useVisits } from "./hooks/useVisits";
+import { useMemo, useState } from "react";
+import { IconAt } from "@tabler/icons-react";
 
 export const EventoModal = ({ closeModal }) => {
     const { formState: { errors }, trigger, getValues } = useFormContext();
@@ -20,12 +22,6 @@ export const EventoModal = ({ closeModal }) => {
             ...evento,
             tipo: TipoEventoEnum.VISITA,
             data: evento.data.toString(),
-            responsavel: {
-                //TODO: autocomplete
-                nome: evento.responsavel,
-                email: "Teste@email.com",
-                tipo: TipoPessoaEnum.RESPONSAVEL
-            }
           }
         })
       });
@@ -36,13 +32,7 @@ export const EventoModal = ({ closeModal }) => {
           evento: {
             ...evento,
             tipo: TipoEventoEnum.VISITA,
-            data: evento.data.toString(),
-            responsavel: {
-                //TODO: autocomplete
-                nome: evento.responsavel,
-                email: "Teste@email.com",
-                tipo: TipoPessoaEnum.RESPONSAVEL
-            }
+            data: evento.data.toString()
           }
         })
       });
@@ -81,7 +71,7 @@ export const EventoModal = ({ closeModal }) => {
     return <div>
         <EventoFields />
         <Space h="xs" />
-        <Button onClick={handleSave} color="teal" fullWidth loading={isLoadingCreate}>Salvar</Button>
+        <Button onClick={handleSave} color="teal" fullWidth loading={isLoadingCreate || isLoadingUpdate}>Salvar</Button>
     </div>;
 };
 const EventoFields = () => {
@@ -148,27 +138,77 @@ const LocalField = () => {
     </div>;
 };
 const ResponsavelField = () => {
-    //TODO: autocomplete
-    const { register, formState: { errors } } = useFormContext();
+    const { register, formState: { errors }, watch, setValue } = useFormContext();
+    const [newResponsavel, setNewResponsavel] = useState(false);    
+    const { data: pessoasQueryResult, isLoading } = useQuery({
+        queryKey: ["pessoa"],
+        queryFn: () => apiInstance.get('/pessoa'),
+        cacheTime: Infinity,
+        staleTime: Infinity,
+    });
+
+    const pessoasParsed = useMemo(() => {
+        return pessoasQueryResult?.data?.data.filter((pessoa) => pessoa.tipo === TipoPessoaEnum.RESPONSAVEL).map((pessoa) => pessoa.nome);
+    }, [pessoasQueryResult]);
+
+    if (isLoading) {
+        return <Skeleton height={8} radius="xl" />;
+    }
+
     return <div>
-        <TextInput
-            label="Responsável"
-            description="Responsável pela visita"
-            placeholder="João da Silva"
-            {...register("evento.responsavel", { required: "Campo obrigatório" })}
-            error={errors?.evento?.nome?.message} />
+            {newResponsavel && (<>
+                    <TextInput
+                        label="Nome responsável"
+                        description="Nome do responsável"
+                        placeholder="João da Silva"
+                        {...register("evento.responsavel.nome", { required: "Campo obrigatório" })}
+                        error={errors?.evento?.responsalve?.nome?.message} 
+                    />
+                    <Space h="xs" />
+                    <TextInput
+                        label="Email responsável"
+                        description="Email do responsável"
+                        placeholder="joao.da.silva@gmail.com"
+                        {...register("evento.responsavel.email", { required: "Campo obrigatório" })}
+                        error={errors?.evento?.responsalve?.email?.message}
+                        rightSectionPointerEvents="none"
+                        rightSection={<IconAt style={{ width: rem(16), height: rem(16) }} />} 
+                    />
+                </>
+            )}
+            {!newResponsavel && (<>
+                <Select
+                    label="Responsável"
+                    description="Responsável pela visita"
+                    placeholder="João da Silva"
+                    data={pessoasParsed}
+                    value={watch("evento.responsavel.nome")}
+                    onChange={(value) => {
+                        const pessoa = pessoasQueryResult.data.data.find((pessoa) => pessoa.nome === value);
+                        setValue("evento.responsavel.nome", pessoa.nome);
+                        setValue("evento.responsavel.email", pessoa.email);
+                    }}
+                    searchable
+                    error={errors?.evento?.responsavel?.nome?.message} 
+                />
+            </>)}
+            <Space h="xs" />
+            <Switch
+                checked={newResponsavel}
+                onChange={(event) => setNewResponsavel(event.currentTarget.checked)}
+                label="Cadastrar novo responsável"
+                color="teal"
+            />
         <Space h="xs" />
     </div>;
 };
 
 const FotoField = () => {
-    const { formState: { errors }, control, watch } = useFormContext();
+    const { formState: { errors }, control } = useFormContext();
     const fotoRegister = useController({
       name: "evento.foto",
       control: control,
     });
-  
-    console.log(watch("evento.foto"));
   
     return <FileInput
       label="Foto do evento"

@@ -6,6 +6,7 @@ import { useVisit } from "./hooks/useVisit";
 import { useDisclosure } from "@mantine/hooks";
 import { EventoModal } from "./EventoModal";
 import { useVisits } from "./hooks/useVisits";
+import { TipoPessoaEnum } from "../../enum/TipoPessoaEnum";
 
 const queryClient = new QueryClient();
 
@@ -15,7 +16,11 @@ const defaultEvento = {
     data: new Date(),
     descricao: "",
     local: "",
-    responsavel: "",
+    responsavel: {
+        nome: "",
+        email: "",
+        tipo: TipoPessoaEnum.RESPONSAVEL
+    },
     foto: "",
 }
 
@@ -46,7 +51,7 @@ const EventoContent = () => {
 
     const handleClose = () => {
         close();
-        queryClient.refetchQueries(["artefatos"]);
+        queryClient.refetchQueries(["eventos", "pessoa"]);
     }
 
     return <>
@@ -89,10 +94,15 @@ export const EventoCard = ({ id, open }) => {
     const parsedVisita = {
         ...visita,
         data: new Date(visita.data),
-        responsavel: visita.pessoa.nome
+        responsavel: {
+            nome: visita.pessoa.nome,
+            email: visita.pessoa.email,
+            tipo: TipoPessoaEnum.RESPONSAVEL
+        }
     }
 
     const handleEdit = () => {
+        console.log(parsedVisita)
         setValue("evento", { ...parsedVisita });
         open();
     }

@@ -1,9 +1,7 @@
-import { Button, Container, Grid, Title } from "@mantine/core";
-import { Link, useNavigate } from "react-router-dom";
+import { Container, Grid, Title } from "@mantine/core";
+import { Link } from "react-router-dom";
 
 export const HomePage = () => {
-    const navigate = useNavigate();
-
     return (
         <Container size="responsive">
             <Grid>
