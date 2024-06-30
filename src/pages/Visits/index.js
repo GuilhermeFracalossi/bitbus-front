@@ -1,9 +1,11 @@
-import { Badge, Button, Card, Center, Flex, Grid, Group, Image, Loader, Skeleton, Space, Text, Title } from "@mantine/core";
+import { Badge, Button, Card, Center, Flex, Grid, Group, Image, Loader, Modal, Skeleton, Space, Text, Title } from "@mantine/core";
 import { IconSquareRoundedPlus } from "@tabler/icons-react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { useVisits } from "./hooks/useVisits";
 import { useVisit } from "./hooks/useVisit";
+import { useDisclosure } from "@mantine/hooks";
+import { EventoModal } from "./EventoModal";
+import { useVisits } from "./hooks/useVisits";
 
 const queryClient = new QueryClient();
 
@@ -17,61 +19,59 @@ const defaultEvento = {
     foto: "",
 }
 
-const handleOpenModalAddEvento = () => {
-
-}
 
 export const VisitsPage = () => {
     const form = useForm({
         defaultValues: {
-            eventos: [],
-            auxiliar: {
-                evento: defaultEvento,
-            }
+            evento: defaultEvento,
         }
     });
 
     return (
         <QueryClientProvider client={queryClient}>
             <FormProvider {...form} >
-                <div>
-                    <Flex
-                        direction={"row"}
-                        justify={"space-between"}
-                    >
-                        <Title order={3}>Visitas agendadas</Title>
-                        <Button rightSection={<IconSquareRoundedPlus size={18} />} onClick={handleOpenModalAddEvento} >Novo evento</Button>
-                    </Flex>
-                </div>
-                <Space h="md" />
-                <div>
-                    <ListagemCardsEventos />
-                </div>
+                <EventoContent />
             </FormProvider>
         </QueryClientProvider>
     );
 }
 
-const ListagemCardsEventos = () => {
-    const { isLoading, data, isError } = useVisits();
-
-    if (isLoading) {
-        return <Center>
-          <Loader color="teal" size="xl" />
-        </Center>;
+const EventoContent = () => {
+    const [opened, { open, close }] = useDisclosure(false);
+    const { setValue } = useFormContext();
+    const handleOpenModalAddEvento = () => {
+        setValue("evento", { ...defaultEvento });
+        open();
     }
 
-    return <Grid grow gutter={"md"}>
-        {data.data.map(evento => (
-            <Grid.Col span={4}>
-                <EventoCard id={evento.id} />
-            </Grid.Col>
-        ))}
-    </Grid>;
-};
+    const handleClose = () => {
+        close();
+        queryClient.refetchQueries(["artefatos"]);
+    }
 
-const EventoCard = ({ id }) => {
-    const {data: visita, isLoading, isError } = useVisit(id);
+    return <>
+        <div>
+            <Flex
+                direction={"row"}
+                justify={"space-between"}
+            >
+                <Title order={3}>Visitas agendadas</Title>
+                <Button rightSection={<IconSquareRoundedPlus size={18} />} color="teal" onClick={handleOpenModalAddEvento} >Nova visita</Button>
+            </Flex>
+        </div>
+        <Space h="md" />
+        <Modal opened={opened} onClose={close} title="Visita">
+            <EventoModal closeModal={handleClose} />
+        </Modal>
+        <div>
+            <ListagemCardsEventos open={open} />
+        </div>
+    </>;
+}
+
+export const EventoCard = ({ id, open }) => {
+    const { data: visita, isLoading, isError } = useVisit(id);
+    const { setValue } = useFormContext();
     if (isLoading) {
         return <Center>
             <Skeleton height={400} width={400} radius="xl" />
@@ -81,30 +81,66 @@ const EventoCard = ({ id }) => {
     if (!visita) {
         return <Text>Evento não encontrado</Text>;
     }
-    console.log(visita.data);
+
+    if (isError) {
+        return <Text>Erro ao carregar evento</Text>;
+    }
+
+    const parsedVisita = {
+        ...visita,
+        data: new Date(visita.data),
+        responsavel: visita.pessoa.nome
+    }
+
+    const handleEdit = () => {
+        setValue("evento", { ...parsedVisita });
+        open();
+    }
 
     return (
-      <Card shadow="sm" padding="lg" radius="md" withBorder>
-        <Card.Section>
-          <Image
-            src={visita?.foto ?? "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-8.png"}
-            height={160}
-            alt="Norway"
-          />
-        </Card.Section>
-  
-        <Group justify="space-between" mt="md" mb="xs">
-          <Text fw={500}>{visita.nome}</Text>
-          <Badge color="pink">{String(visita.data.getDate()).padStart(2, '0')}/{String(visita.data.getMonth()).padStart(2, '0')}</Badge>
-        </Group>
-  
-        <Text size="sm" c="dimmed">
-          {visita?.descricao}
-        </Text>
-  
-        <Button color="blue" fullWidth mt="md" radius="md">
-          Editar dados visita
-        </Button>
-      </Card>
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <Card.Section>
+                <Image
+                    src={parsedVisita?.foto ? process.env.REACT_APP_API_URL + parsedVisita?.foto : "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-8.png"}
+                    height={160}
+                    alt="Norway"
+                />
+            </Card.Section>
+
+            <Group justify="space-between" mt="md" mb="xs">
+                <Text fw={500}>{parsedVisita.nome}</Text>
+                <Badge color="teal">{String(parsedVisita.data.getDate()).padStart(2, '0')}/{String(parsedVisita.data.getMonth()).padStart(2, '0')}</Badge>
+            </Group>
+
+            <Text size="sm" c="dimmed">
+                {parsedVisita?.descricao}
+            </Text>
+
+            <Button color="teal" fullWidth mt="md" radius="md" onClick={handleEdit}>
+                Editar dados visita
+            </Button>
+        </Card>
     );
-  }
+}
+
+const ListagemCardsEventos = ({ open }) => {
+    const { isLoading, data } = useVisits();
+
+    if (isLoading) {
+        return <Center>
+            <Loader color="teal" size="xl" />
+        </Center>;
+    }
+
+    if (!data?.data?.data) {
+        return <Text>Nenhum evento encontrado</Text>;
+    }
+
+    return <Grid grow gutter={"md"}>
+        {data.data.data.map((evento) => (
+            <Grid.Col span={4} key={evento.id}>
+                <EventoCard id={evento.id} open={open} />
+            </Grid.Col>
+        ))}
+    </Grid>;
+};

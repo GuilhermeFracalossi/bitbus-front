@@ -6,12 +6,15 @@ import reportWebVitals from './reportWebVitals';
 import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { BrowserRouter } from 'react-router-dom';
+import { DatesProvider } from '@mantine/dates';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<MantineProvider>
   <Notifications />
   <BrowserRouter>
+  <DatesProvider settings={{ locale: 'pt' }}>
     <App />
+  </DatesProvider>
   </BrowserRouter>
 </MantineProvider>
 );
