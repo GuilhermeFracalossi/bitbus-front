@@ -28,7 +28,7 @@ export const ListagemArtefatos = ({ openModal }) => {
   }
 
   const handleRemover = async (e, id) => {
-    e.preventDefault();
+    e.stopPropagation();
     try {
       await apiInstance.delete(`/artefato/${id}`);
       refetch();

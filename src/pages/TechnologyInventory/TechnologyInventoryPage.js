@@ -64,7 +64,7 @@ const InventoryPageContent = () => {
   return <>
     <header className="inventory-header">
       <Title order={3}>Itens de tecnologia</Title>
-      <Button rightSection={<IconPlus size={14} />} onClick={handleOpenModalAddItem} >Add item</Button>
+      <Button rightSection={<IconPlus size={14} />} onClick={handleOpenModalAddItem} color='teal' >Adicionar item</Button>
     </header>
     <Modal opened={opened} onClose={close} title="Artefato">
       <ArtefatoModal closeModal={handleClose} />

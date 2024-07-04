@@ -82,7 +82,7 @@ export const ArtefatoModal = ({ closeModal }) => {
   return <div>
     <ArtefatoFields />
     <Space h="xs" />
-    <Button onClick={handleSave} loading={isLoading} fullWidth>Salvar</Button>
+    <Button onClick={handleSave} loading={isLoading} fullWidth color='teal'>Salvar</Button>
   </div>;
 };
 

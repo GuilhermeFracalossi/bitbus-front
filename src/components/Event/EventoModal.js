@@ -4,23 +4,21 @@ import { DatePickerInput } from "@mantine/dates";
 import apiInstance from "../../services/api_client";
 import { useMutation, useQuery } from "react-query";
 import { notifications } from "@mantine/notifications";
-import { TipoEventoEnum } from "../../enum/TipoEventoEnum";
 import { TipoPessoaEnum } from "../../enum/TipoPessoaEnum";
-import { useVisits } from "./hooks/useVisits";
 import { useMemo, useState } from "react";
 import { IconAt } from "@tabler/icons-react";
+import { useEventos } from "./hooks/useEventos";
 
 export const EventoModal = ({ closeModal }) => {
     const { formState: { errors }, trigger, getValues } = useFormContext();
-    const { refetch } = useVisits();
-    const { setValue } = useFormContext();
+    const { refetch } = useEventos();
 
     const { isLoadingCreate, mutateAsync: createEventoMutation } = useMutation({
         mutationKey: ["create-evento"],
         mutationFn: (evento) => apiInstance.post('/evento', {
           evento: {
             ...evento,
-            tipo: TipoEventoEnum.VISITA,
+            tipo: getValues("tipoEvento"),
             data: evento.data.toString(),
           }
         })
@@ -31,7 +29,7 @@ export const EventoModal = ({ closeModal }) => {
         mutationFn: (evento) => apiInstance.patch('/evento/' + evento.id, {
           evento: {
             ...evento,
-            tipo: TipoEventoEnum.VISITA,
+            tipo: getValues("tipoEvento"),
             data: evento.data.toString()
           }
         })
@@ -89,7 +87,7 @@ const NomeField = () => {
     return <div>
         <TextInput
             label="Nome"
-            description="Nome da visita"
+            description="Nome do evento"
             placeholder="Visita a escola elementar"
             {...register("evento.nome", { required: "Campo obrigatório" })}
             error={errors?.evento?.nome?.message} />
@@ -118,8 +116,8 @@ const DescricaoField = () => {
     return <div>
         <Textarea
             label="Descrição"
-            description="Maiores informacoes sobre a visita"
-            placeholder="Visita a escola elementar para apresentar a nova tecnologia de ensino..."
+            description="Maiores informacoes sobre o evento"
+            placeholder="Palestra com Alan Turing sobre máquinas paralelas..."
             error={errors?.evento?.descricao?.message}
             {...register("evento.descricao", { required: "Campo obrigatório" })} />
         <Space h="xs" />
@@ -166,8 +164,8 @@ const ResponsavelField = () => {
                     />
                     <Space h="xs" />
                     <TextInput
-                        label="Email responsável"
-                        description="Email do responsável"
+                        label="E-mail responsável"
+                        description="E-mail do responsável"
                         placeholder="joao.da.silva@gmail.com"
                         {...register("evento.responsavel.email", { required: "Campo obrigatório" })}
                         error={errors?.evento?.responsalve?.email?.message}

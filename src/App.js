@@ -6,9 +6,10 @@ import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/notifications/styles.css';
 import { AppShell, Group, Image, NavLink } from '@mantine/core';
-import { IconBuildingWarehouse, IconMapPins } from '@tabler/icons-react';
+import { IconBuildingWarehouse, IconMapPins, IconTools } from '@tabler/icons-react';
 import { VisitsPage } from './pages/Visits';
 import { HomePage } from './pages/Home';
+import { WorkshopsPage } from './pages/Workshops';
 
 const App = () => {
 
@@ -42,12 +43,19 @@ const App = () => {
               leftSection={<IconMapPins size="1rem" stroke={1.5} />} 
             />
           </Link>
+          <Link to={"/workshops"}>
+            <NavLink 
+              label="Palestras e oficinas" 
+              leftSection={<IconTools size="1rem" stroke={1.5} />} 
+            />
+          </Link>
         </Group>
       </AppShell.Header>
       <AppShell.Main>
             <Routes>
                 <Route path="/inventory" element={<TechnologyInventoryPage />} />
                 <Route path="/visits" element={<VisitsPage />} />
+                <Route path="/workshops" element={<WorkshopsPage />} />
                 <Route path="/test" element={<TestPage />} />
                 <Route path="/" element={<HomePage />} />
             </Routes>

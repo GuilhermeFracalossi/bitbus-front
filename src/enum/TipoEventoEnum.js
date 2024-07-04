@@ -1,11 +1,11 @@
 export const TipoEventoEnum = {
     "VISITA":1,
-    "PALESTRA": 2,
+    "WORKSHOP": 2,
     "OUTRO": 3,
 };
 
 export const TipoEventoEnumLabel = {
     [TipoEventoEnum.VISITA]: "Visita",
-    [TipoEventoEnum.PALESTRA]: "Palestra",
+    [TipoEventoEnum.WORKSHOP]: "Palestra ou oficina",
     [TipoEventoEnum.OUTRO]: "Outro",
 };
